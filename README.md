@@ -1,6 +1,6 @@
 # tink
 
-A CLI tool for managing [Zed](https://zed.dev) debug launch profiles. It reads and writes `.zed/debug.json` in the current working directory.
+A CLI tool for managing debug launch profiles for [Zed](https://zed.dev) and [VSCode](https://code.visualstudio.com). It reads and writes config files in the current working directory.
 
 ## Installation
 
@@ -27,20 +27,21 @@ tink <COMMAND>
 |-------------------------|--------------------------------------------------------------------------------|
 | `-l, --language <LANG>` | Debug adapter language (`go`, `rust`, `c`, `cpp`, `python`, `js`, `ts`, `php`) |
 | `-n, --label <NAME>`    | Display name for the profile (default: `Debug <program>`)                      |
+| `-t, --target <TARGET>` | Target editor: `zed` (default) or `vscode`                                     |
 | `-- <PROGRAM> [ARGS]`   | Program path and its arguments                                                 |
 
 ## Examples
 
-Add a profile for a Go binary:
+Add a Zed profile for a Go binary:
 
 ```sh
 tink add -l go -- ./bin/myapp --port 8080
 ```
 
-Add a profile with a custom label:
+Add a VSCode profile with a custom label:
 
 ```sh
-tink add -l rust -n "Debug server" -- ./target/debug/myapp
+tink add -l rust -t vscode -n "Debug server" -- ./target/debug/myapp
 ```
 
 Replace (upsert) an existing profile:
@@ -51,19 +52,20 @@ tink replace -l rust -n "Debug server" -- ./target/debug/myapp --verbose
 
 ## Supported Languages
 
-| Language flag         | Zed adapter  |
-|-----------------------|--------------|
-| `go`                  | Go           |
-| `rust`                | CodeLLDB     |
-| `c`, `cpp`, `c++`     | CodeLLDB     |
-| `python`              | Debugpy      |
-| `javascript`, `js`    | JavaScript   |
-| `typescript`, `ts`    | JavaScript   |
-| `php`                 | PHP          |
+| Language flag          | Zed adapter  | VSCode type |
+|------------------------|--------------|-------------|
+| `go`                   | Go           | go          |
+| `rust`, `c`, `cpp`     | CodeLLDB     | lldb        |
+| `python`               | Debugpy      | debugpy     |
+| `javascript`, `js`     | JavaScript   | node        |
+| `typescript`, `ts`     | JavaScript   | node        |
+| `php`                  | PHP          | php         |
 
 ## Output
 
-Profiles are written to `.zed/debug.json` as a JSON array. Example output:
+### Zed
+
+Profiles are written to `.zed/debug.json` as a JSON array:
 
 ```json
 [
@@ -75,4 +77,23 @@ Profiles are written to `.zed/debug.json` as a JSON array. Example output:
     "args": ["--verbose"]
   }
 ]
+```
+
+### VSCode
+
+Configurations are written to `.vscode/launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug server",
+      "type": "lldb",
+      "request": "launch",
+      "program": "./target/debug/myapp",
+      "args": ["--verbose"]
+    }
+  ]
+}
 ```
