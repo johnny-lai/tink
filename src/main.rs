@@ -1,16 +1,18 @@
 use anyhow::Result;
 use clap::Parser;
 
-mod add;
+mod profile;
 
 #[derive(Parser, Debug)]
 #[command(name = "tink", about = "Generate launch profiles")]
 enum Args {
-    Add(add::FnAdd),
+    Add(profile::FnAdd),
+    Replace(profile::FnReplace),
 }
 
 fn main() -> Result<()> {
     match Args::parse() {
         Args::Add(cmd) => cmd.run(),
+        Args::Replace(cmd) => cmd.run(),
     }
 }
